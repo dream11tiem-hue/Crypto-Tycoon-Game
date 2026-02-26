@@ -14,171 +14,170 @@
     <style>
         :root {
             --primary: #22c55e;
-            --primary-glow: rgba(34, 197, 94, 0.4);
-            --bg-dark: #020617;
-            --card-glass: rgba(15, 23, 42, 0.8);
-            --border-glass: rgba(255, 255, 255, 0.1);
+            --bg: #030712;
+            --glass: rgba(17, 24, 39, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-dark);
-            color: #f8fafc;
+            background-color: var(--bg);
+            color: #f3f4f6;
             overflow: hidden;
-            -webkit-touch-callout: none;
+            -webkit-font-smoothing: antialiased;
         }
 
         .terminal-font { font-family: 'JetBrains Mono', monospace; }
-        .neon-text { color: var(--primary); text-shadow: 0 0 12px var(--primary-glow); }
-        .glass { background: var(--card-glass); backdrop-filter: blur(20px); border: 1px solid var(--border-glass); }
-        .neon-btn { border: 1px solid var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
+        .glass { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border); }
+        .neon-glow { color: var(--primary); text-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+        .neon-border { border: 1px solid var(--primary); box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
         
         /* Custom Scrollbar */
-        .scroller::-webkit-scrollbar { width: 5px; }
+        .scroller::-webkit-scrollbar { width: 4px; }
         .scroller::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
 
         /* Animations */
-        @keyframes fadeUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .animate-ui { animation: fadeUp 0.5s ease-out forwards; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-up { animation: slideUp 0.5s ease-out forwards; }
         
-        .tab-active { background: var(--primary); color: white; box-shadow: 0 4px 15px var(--primary-glow); }
+        .tab-active { background: var(--primary); color: white; box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4); }
         
-        /* Loading Overlay Scanline */
+        /* Loading Scanline */
         @keyframes scan { 0% { top: -100%; } 100% { top: 100%; } }
         .scanline::after {
-            content: ""; position: absolute; width: 100%; height: 4px;
+            content: ""; position: absolute; width: 100%; height: 3px;
             background: rgba(34, 197, 94, 0.1); animation: scan 4s linear infinite;
         }
     </style>
 </head>
 <body class="h-screen flex flex-col scanline">
 
-    <div id="boot-overlay" class="fixed inset-0 z-[1000] bg-black flex flex-col items-center justify-center terminal-font p-8">
+    <div id="boot-overlay" class="fixed inset-0 z-[1000] bg-black flex flex-col items-center justify-center p-8 terminal-font">
         <div class="w-full max-w-lg space-y-4">
-            <div id="logs" class="text-green-500 text-xs h-32 overflow-hidden flex flex-col-reverse"></div>
-            <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                <div id="boot-bar" class="h-full bg-green-500 w-0 transition-all duration-300"></div>
+            <div id="boot-logs" class="text-green-500 text-[10px] h-32 overflow-hidden flex flex-col-reverse opacity-70"></div>
+            <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                <div id="boot-progress" class="h-full bg-green-500 w-0 transition-all duration-300"></div>
             </div>
-            <p id="boot-status" class="text-center text-[10px] text-gray-500 uppercase tracking-widest">Awaiting Command...</p>
+            <p id="boot-status" class="text-center text-[10px] text-gray-500 uppercase tracking-widest animate-pulse">Establishing Secure Link...</p>
         </div>
     </div>
 
-    <header class="glass sticky top-0 z-[100] px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-white/5">
-        <div class="flex items-center gap-4 w-full sm:w-auto">
-            <div class="relative">
-                <div class="w-14 h-14 rounded-3xl bg-gradient-to-br from-green-600 to-emerald-900 border border-white/20 flex items-center justify-center font-black text-2xl shadow-xl">A</div>
+    <header class="glass sticky top-0 z-[100] px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-white/5">
+        <div class="flex items-center gap-4 w-full md:w-auto">
+            <div class="relative group">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-600 to-emerald-900 border border-white/20 flex items-center justify-center font-black text-2xl shadow-2xl transition-transform group-hover:scale-110">A</div>
                 <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-4 border-slate-950 rounded-full"></div>
             </div>
             <div>
-                <h2 id="p-display-name" class="text-xl font-extrabold tracking-tight">AYAN_USER</h2>
-                <div class="flex items-center gap-2 text-[10px] font-black uppercase text-gray-500 tracking-wider">
-                    <span id="p-display-rank" class="text-green-500">Tier: Newbie</span>
-                    <span class="w-1.5 h-1.5 bg-white/10 rounded-full"></span>
-                    <span id="p-display-streak">Streak: 0 Days</span>
+                <h2 id="p-name-hud" class="text-xl font-extrabold tracking-tight">GUEST_TRADER</h2>
+                <div class="flex items-center gap-3 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                    <span id="p-rank-hud" class="text-green-500">Tier: Rookie</span>
+                    <span class="w-1 h-1 bg-gray-700 rounded-full"></span>
+                    <span id="p-streak-hud">Streak: 0 Days</span>
                 </div>
             </div>
         </div>
-        <div class="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
+        <div class="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
             <div class="text-right">
-                <p class="text-[9px] text-gray-600 font-bold uppercase tracking-widest">Current Balance</p>
-                <p id="p-display-wallet" class="text-3xl font-black neon-text">$0.00</p>
+                <p class="text-[9px] text-gray-600 font-bold uppercase tracking-widest">Net Profit Value</p>
+                <p id="p-profit-hud" class="text-xs font-bold text-green-400">+$0.00</p>
+            </div>
+            <div class="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-end">
+                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Available Balance</p>
+                <p id="p-wallet-hud" class="text-3xl font-black neon-glow">$0.00</p>
             </div>
         </div>
     </header>
 
-    <nav class="flex p-2 gap-2 glass border-b border-white/5 overflow-x-auto scroller">
-        <button onclick="navTo('chat')" id="nav-chat" class="tab-active flex-grow min-w-[100px] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col items-center">
+    <nav class="flex p-2 gap-2 glass border-b border-white/5 scroller overflow-x-auto">
+        <button onclick="changeView('chat')" id="nav-chat" class="tab-active flex-grow min-w-[120px] py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col items-center">
             <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" stroke-width="2"/></svg>
             Manager
         </button>
-        <button onclick="navTo('market')" id="nav-market" class="flex-grow min-w-[100px] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col items-center text-gray-500">
+        <button onclick="changeView('market')" id="nav-market" class="flex-grow min-w-[120px] py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col items-center text-gray-500">
             <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-width="2"/></svg>
             Market
         </button>
-        <button onclick="navTo('jobs')" id="nav-jobs" class="flex-grow min-w-[100px] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col items-center text-gray-500">
+        <button onclick="changeView('jobs')" id="nav-jobs" class="flex-grow min-w-[120px] py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col items-center text-gray-500">
             <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="2"/></svg>
             Job Board
         </button>
-        <button onclick="navTo('leader')" id="nav-leader" class="flex-grow min-w-[100px] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col items-center text-gray-500">
-            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke-width="2"/></svg>
-            Leaderboard
+        <button onclick="changeView('leader')" id="nav-leader" class="flex-grow min-w-[120px] py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col items-center text-gray-500">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138z" stroke-width="2"/></svg>
+            Rankings
         </button>
     </nav>
 
     <main class="flex-grow relative overflow-hidden">
         
-        <section id="view-chat" class="absolute inset-0 flex flex-col animate-ui">
-            <div id="chat-scroller" class="flex-grow overflow-y-auto p-6 space-y-6 scroller pb-36">
-                <div class="max-w-[85%] glass p-5 rounded-3xl rounded-tl-none border-l-4 border-green-500 shadow-2xl">
-                    <p class="text-[9px] font-black text-green-500 uppercase mb-2">Secure Link Established</p>
-                    <div class="text-sm leading-relaxed" id="welcome-msg">Establishing connection to decentralized nodes...</div>
+        <section id="view-chat" class="absolute inset-0 flex flex-col animate-up">
+            <div id="chat-flow" class="flex-grow overflow-y-auto p-6 space-y-6 scroller pb-40">
+                <div class="max-w-[85%] glass p-6 rounded-3xl rounded-tl-none border-l-4 border-green-500 shadow-2xl">
+                    <p class="text-[9px] font-black text-green-500 uppercase mb-2">Manager Online</p>
+                    <div class="text-sm leading-relaxed" id="greeting-box">Initializing AI link with custom model...</div>
                 </div>
             </div>
 
-            <div class="p-6 bg-gradient-to-t from-bg-dark via-bg-dark/95 to-transparent">
-                <div class="max-w-4xl mx-auto flex items-center glass p-1.5 rounded-[2rem] border border-white/10 shadow-3xl">
-                    <button onclick="toggleSettings()" class="p-4 text-gray-500 hover:text-white transition-colors">⚙️</button>
-                    <input type="text" id="ai-input" placeholder="Ask anything or use /commands..." class="flex-grow bg-transparent px-5 py-4 outline-none text-sm font-medium">
-                    <button id="ai-send" class="bg-primary hover:bg-emerald-500 text-white p-4 rounded-3xl transition-all shadow-xl active:scale-95">
+            <div class="p-6 bg-gradient-to-t from-bg via-bg/95 to-transparent">
+                <div class="max-w-4xl mx-auto flex items-center glass p-2 rounded-[2.5rem] border border-white/10 shadow-3xl">
+                    <button onclick="openSettings()" class="p-4 text-gray-500 hover:text-white transition-colors">⚙️</button>
+                    <input type="text" id="ai-input" placeholder="Type command or message..." class="flex-grow bg-transparent px-5 py-4 outline-none text-sm font-medium">
+                    <button id="ai-send" class="bg-primary hover:bg-emerald-500 text-white p-4 rounded-[1.8rem] transition-all shadow-xl active:scale-95">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </button>
                 </div>
             </div>
         </section>
 
-        <section id="view-market" class="absolute inset-0 hidden overflow-y-auto p-6 bg-[#010413] animate-ui">
-            <div class="flex justify-between items-end mb-8">
-                <h3 class="text-3xl font-black tracking-tighter">LIQUIDITY TERMINAL</h3>
-                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Real-Time Data Feed</p>
-            </div>
+        <section id="view-market" class="absolute inset-0 hidden overflow-y-auto p-6 bg-slate-950 animate-up">
+            <h3 class="text-3xl font-black mb-8 tracking-tighter">LIQUIDITY_MARKET</h3>
             <div id="market-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
-        <section id="view-jobs" class="absolute inset-0 hidden overflow-y-auto p-6 bg-slate-950 animate-ui">
-            <div class="p-8 rounded-[2.5rem] bg-amber-900/10 border border-amber-600/20 mb-8">
-                <h3 class="text-2xl font-black text-amber-500 mb-2">Recruitment Center</h3>
-                <p class="text-sm text-gray-400">Bankrupt? No problem. Become a proxy trader for whale wallets. Sell tokens, earn 5% passive commission on every trade.</p>
+        <section id="view-jobs" class="absolute inset-0 hidden overflow-y-auto p-6 bg-black animate-up">
+            <div class="p-8 rounded-[3rem] bg-yellow-900/10 border border-yellow-700/20 mb-8">
+                <h3 class="text-2xl font-black text-yellow-500 mb-2">Job Board</h3>
+                <p class="text-sm text-gray-400">Zero balance? Use the terminal to promote whale tokens and earn passive commission. AI handles all payouts automatically.</p>
             </div>
-            <div id="job-feed" class="space-y-4"></div>
+            <div id="job-list" class="space-y-4"></div>
         </section>
 
-        <section id="view-leader" class="absolute inset-0 hidden overflow-y-auto p-6 bg-slate-900 animate-ui">
-            <h3 class="text-3xl font-black tracking-tighter text-center mb-10 uppercase">Global Hall of Fame</h3>
-            <div id="leaderboard-feed" class="max-w-3xl mx-auto space-y-3"></div>
+        <section id="view-leader" class="absolute inset-0 hidden overflow-y-auto p-6 bg-[#02040a] animate-up">
+            <h3 class="text-3xl font-black text-center mb-10 tracking-tighter uppercase">Global Top 100</h3>
+            <div id="leader-feed" class="max-w-3xl mx-auto space-y-3"></div>
         </section>
-
     </main>
 
-    <div id="modal-config" class="fixed inset-0 z-[2000] bg-black/90 hidden items-center justify-center p-6 backdrop-blur-2xl">
-        <div class="glass p-10 rounded-[3rem] w-full max-w-lg border-2 border-primary/20 animate-ui">
-            <h3 class="text-3xl font-black mb-2">SYSTEM_CONFIG</h3>
-            <p class="text-xs text-gray-500 mb-10 font-bold uppercase tracking-widest">Configure AI Infrastructure</p>
+    <div id="modal-settings" class="fixed inset-0 z-[2000] bg-black/95 hidden items-center justify-center p-6 backdrop-blur-3xl">
+        <div class="glass p-10 rounded-[3rem] w-full max-w-lg border-2 border-primary/20 animate-up">
+            <h3 class="text-3xl font-black mb-2">TERMINAL CONFIG</h3>
+            <p class="text-xs text-gray-500 mb-10 font-bold uppercase tracking-widest">Secure Hardware Configuration</p>
             
             <div class="space-y-6">
-                <div class="group">
+                <div>
                     <label class="text-[10px] text-primary font-black uppercase mb-3 block">OpenRouter API Key</label>
                     <input type="password" id="cfg-key" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-primary transition-all text-sm font-bold" placeholder="sk-or-v1-...">
                 </div>
-                <div class="group">
-                    <label class="text-[10px] text-primary font-black uppercase mb-3 block">Custom Model Name</label>
+                <div>
+                    <label class="text-[10px] text-primary font-black uppercase mb-3 block">Custom Model Name (Manual Type)</label>
                     <input type="text" id="cfg-model" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-primary transition-all text-sm font-bold" placeholder="e.g. deepseek/deepseek-r1:free">
-                    <p class="text-[9px] text-gray-600 mt-2 italic">*Enter any model ID from OpenRouter Documentation</p>
+                    <p class="text-[9px] text-gray-600 mt-2 italic">*Type any OpenRouter model ID exactly as listed.</p>
                 </div>
-                <div class="group">
-                    <label class="text-[10px] text-primary font-black uppercase mb-3 block">Display Handle</label>
-                    <input type="text" id="cfg-name" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-primary transition-all text-sm font-bold" placeholder="Trader_123">
+                <div>
+                    <label class="text-[10px] text-primary font-black uppercase mb-3 block">Player Handle</label>
+                    <input type="text" id="cfg-name" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl outline-none focus:border-primary transition-all text-sm font-bold" placeholder="AYAN_GUEST">
                 </div>
 
-                <div class="pt-4 flex flex-col gap-3">
-                    <button onclick="saveConfig()" class="w-full bg-primary hover:bg-emerald-400 py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl transition-all">Establish Link</button>
-                    <button onclick="toggleSettings()" class="w-full py-2 text-xs text-gray-600 font-bold hover:text-white transition-colors uppercase">Abort Settings</button>
+                <div class="pt-6">
+                    <button onclick="saveSettings()" class="w-full bg-primary hover:bg-emerald-400 py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl transition-all active:scale-95">Establish Secure Link</button>
+                    <button onclick="closeSettings()" class="w-full py-4 text-xs text-gray-600 font-bold uppercase hover:text-white transition-colors">Abort Settings</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- FIREBASE CONFIGURATION ---
+        // --- FIREBASE INITIALIZATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyAAC-fGe6dO1nIQ1LCg7f-Bk-spQ2IAvEs",
             authDomain: "tubevideo-d3bf7.firebaseapp.com",
@@ -191,18 +190,18 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- ENGINE STATE ---
-        let game = {
-            player: {
-                name: localStorage.getItem('tr_name') || "AYAN_GUEST",
-                wallet: parseFloat(localStorage.getItem('tr_wallet')) || 1000.00,
-                streak: parseInt(localStorage.getItem('tr_streak')) || 0,
-                lastLogin: parseInt(localStorage.getItem('tr_last_login')) || 0,
-                rank: "Novice"
+        // --- GLOBAL STATE ---
+        let state = {
+            p: {
+                name: localStorage.getItem('ay_name') || "AYAN_GUEST",
+                wallet: parseFloat(localStorage.getItem('ay_wallet')) || 1000.00,
+                streak: parseInt(localStorage.getItem('ay_streak')) || 0,
+                lastLogin: parseInt(localStorage.getItem('ay_last')) || 0,
+                isBankrupt: false
             },
-            config: {
-                apiKey: localStorage.getItem('tr_key') || "",
-                model: localStorage.getItem('tr_model') || "deepseek/deepseek-r1:free"
+            cfg: {
+                key: localStorage.getItem('ay_key') || "",
+                model: localStorage.getItem('ay_model') || "deepseek/deepseek-r1:free"
             },
             market: [
                 {id: 'ayan_off', name: 'Ayan Official', price: 154.20, change: 5.2},
@@ -210,65 +209,61 @@
             ]
         };
 
-        // --- STARTUP SEQUENCE ---
+        // --- BOOTING SEQUENCE ---
         window.onload = () => {
-            const logs = document.getElementById('logs');
-            const progress = document.getElementById('boot-bar');
-            const startupLogs = [
-                "AUTHENTICATING_USER...",
-                "SYNCING_FIREBASE_RTDB...",
-                "CONNECTING_OPENROUTER_GATEWAY...",
-                "LOAD_ASSETS_UI_KIT...",
-                "BOOTING_TYCOON_ENGINE..."
-            ];
-
-            let step = 0;
-            const boot = setInterval(() => {
-                const log = document.createElement('p');
-                log.innerText = `[OK] ${startupLogs[step]}`;
-                logs.prepend(log);
-                step++;
-                progress.style.width = (step / startupLogs.length) * 100 + '%';
+            const logs = document.getElementById('boot-logs');
+            const progress = document.getElementById('boot-progress');
+            const bootLines = ["DECRYPTING_PACKETS...", "CONNECTING_FIREBASE...", "LOADING_REWARDS_ENGINE...", "READY_FOR_HANDSHAKE."];
+            
+            let i = 0;
+            const timer = setInterval(() => {
+                const line = document.createElement('p');
+                line.innerText = `[SUCCESS] ${bootLines[i]}`;
+                logs.prepend(line);
+                i++;
+                progress.style.width = (i / bootLines.length) * 100 + '%';
                 
-                if(step >= startupLogs.length) {
-                    clearInterval(boot);
+                if(i >= bootLines.length) {
+                    clearInterval(timer);
                     setTimeout(() => {
-                        document.getElementById('boot-overlay').style.display = 'none';
-                        startSystem();
-                    }, 800);
+                        document.getElementById('boot-overlay').classList.add('hidden');
+                        initGame();
+                    }, 500);
                 }
-            }, 400);
+            }, 300);
         };
 
-        function startSystem() {
+        function initGame() {
             updateHUD();
             processDailyReward();
             syncLeaderboard();
             startMarketFeed();
-            
-            if(!game.config.apiKey) toggleSettings();
-            
-            addAIResponse(`Welcome Boss. Terminal v3.0 is operational. Model Link: **${game.config.model}**. Your capital is **$${game.player.wallet}**. What is the first trade?`);
+            if(!state.cfg.key) openSettings();
+            addAI("Welcome Boss. Handshake successful with **" + state.cfg.model + "**. Capital verified at **$" + state.p.wallet + "**. Ready for market analysis.");
         }
 
         function updateHUD() {
-            document.getElementById('p-display-wallet').innerText = `$${game.player.wallet.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-            document.getElementById('p-display-name').innerText = game.player.name.toUpperCase();
-            document.getElementById('p-display-streak').innerText = `Streak: ${game.player.streak} Days`;
+            const w = document.getElementById('p-wallet-hud');
+            w.innerText = `$${state.p.wallet.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('p-name-hud').innerText = state.p.name.toUpperCase();
+            document.getElementById('p-streak-hud').innerText = `Streak: ${state.p.streak} Days`;
             
-            localStorage.setItem('tr_wallet', game.player.wallet);
-            localStorage.setItem('tr_name', game.player.name);
+            localStorage.setItem('ay_wallet', state.p.wallet);
+            localStorage.setItem('ay_name', state.p.name);
 
-            // Sync Firebase
-            db.ref('rankings/' + game.player.name).set({
-                name: game.player.name,
-                wallet: game.player.wallet,
-                streak: game.player.streak
+            // Sync Firebase Rankings
+            db.ref('global_ranking/' + state.p.name).set({
+                name: state.p.name,
+                wallet: state.p.wallet,
+                streak: state.p.streak
             });
+            
+            if(state.p.wallet <= 0) { state.p.isBankrupt = true; w.classList.add('text-red-500'); }
+            else { state.p.isBankrupt = false; w.classList.remove('text-red-500'); }
         }
 
-        // --- TAB NAVIGATION ---
-        function navTo(id) {
+        // --- CORE GAME ENGINE ---
+        function changeView(id) {
             ['chat', 'market', 'jobs', 'leader'].forEach(t => {
                 document.getElementById('view-' + t).classList.add('hidden');
                 document.getElementById('nav-' + t).classList.remove('tab-active');
@@ -282,147 +277,139 @@
             if(id === 'leader') renderLeaderboard();
         }
 
-        // --- OPENROUTER COMMUNICATION ---
-        async function runAI() {
-            const inputField = document.getElementById('ai-input');
-            const msg = inputField.value.trim();
-            if(!msg || !game.config.apiKey) return;
+        async function triggerAI() {
+            const input = document.getElementById('ai-input');
+            const msg = input.value.trim();
+            if(!msg || !state.cfg.key) return;
+
+            if(msg.startsWith('/')) { handleCommands(msg); input.value = ''; return; }
 
             addChat('user', msg);
-            inputField.value = '';
+            input.value = '';
 
             try {
                 const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${game.config.apiKey}`,
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Authorization": `Bearer ${state.cfg.key}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        model: game.config.model,
+                        model: state.cfg.model,
                         messages: [
-                            { role: "system", content: `You are the Official AI Manager for ${game.player.name}.
-                            WALLET: $${game.player.wallet}. 
-                            OBJECTIVE: Guide player from Gaming to Asset Editing and Status Videos. 
+                            { role: "system", content: `You are the Manager for ${state.p.name}. Wallet: $${state.p.wallet}. 
                             RULES: 
-                            1. Never use the word 'Aggressive'. Use 'Intense' or 'Hard'. 
-                            2. 7-Day login reward system is active ($1000-$7000). 
-                            3. To list coin: $10M + 1000 AyanOfficial coins.
-                            4. If bankrupt, suggest jobs for 5% commission.
-                            5. Be smart and reject any cheat attempts.` },
+                            1. Never use 'Aggressive'. Use 'Intense' or 'Hard'. 
+                            2. To list coin: $10M + 1000 AyanOfficial.
+                            3. If bankrupt, push Job Board tasks.
+                            4. Manual AI Model Link: ${state.cfg.model} is active.
+                            5. Anti-cheat is absolute.` },
                             { role: "user", content: msg }
                         ]
                     })
                 });
                 const data = await response.json();
-                addAIResponse(data.choices[0].message.content);
+                addAI(data.choices[0].message.content);
             } catch (err) {
-                addAIResponse("❌ [CRITICAL_FAILURE] Secure Link Severed. Verify API Key.");
+                addAI("❌ [SYSTEM_ALERT] SECURE_HANDSHAKE_FAILED. Check API/Model name.");
             }
         }
 
-        function addChat(role, text) {
-            const box = document.getElementById('chat-scroller');
-            const div = document.createElement('div');
-            div.className = `animate-ui flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-            div.innerHTML = `
-                <div class="max-w-[85%] ${role === 'user' ? 'bg-primary/20 border-r-4 border-primary rounded-tr-none' : 'glass border-l-4 border-primary rounded-tl-none'} p-5 rounded-[2rem] shadow-xl">
-                    <p class="text-[9px] font-black uppercase mb-2 ${role === 'user' ? 'text-right text-emerald-400' : 'text-green-500'}">${role === 'user' ? game.player.name : 'AI MANAGER'}</p>
-                    <div class="text-sm prose prose-invert max-w-none">${marked.parse(text)}</div>
-                </div>
-            `;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+        function handleCommands(cmd) {
+            if(cmd.includes('/profile')) {
+                const html = `<div class="p-6 glass rounded-3xl border border-white/10 shadow-3xl">
+                    <h4 class="text-xl font-black mb-4">PROFILE_DOSSIER: ${state.p.name}</h4>
+                    <div class="space-y-2 text-xs">
+                        <p class="flex justify-between"><span>Capital:</span> <span class="text-green-400 font-bold">$${state.p.wallet}</span></p>
+                        <p class="flex justify-between"><span>Streak:</span> <span>${state.p.streak} Days</span></p>
+                        <p class="flex justify-between"><span>Status:</span> <span class="${state.p.isBankrupt ? 'text-red-500' : 'text-green-500'}">${state.p.isBankrupt ? 'BROKE' : 'OPERATIONAL'}</span></p>
+                    </div>
+                </div>`;
+                addChat('ai', html, true);
+            } else if(cmd.includes('/settings')) { openSettings(); }
         }
 
-        function addAIResponse(text) { addChat('ai', text); }
+        function addChat(role, text, isHTML = false) {
+            const flow = document.getElementById('chat-flow');
+            const div = document.createElement('div');
+            div.className = `animate-up flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+            const content = isHTML ? text : marked.parse(text);
+            div.innerHTML = `<div class="max-w-[85%] ${role === 'user' ? 'bg-primary/20 border-r-4 border-primary rounded-tr-none' : 'glass border-l-4 border-primary rounded-tl-none'} p-5 rounded-3xl shadow-xl">
+                <p class="text-[9px] font-black uppercase mb-2 ${role === 'user' ? 'text-right text-emerald-400' : 'text-green-500'}">${role === 'user' ? state.p.name : 'MANAGER'}</p>
+                <div class="text-sm prose prose-invert">${content}</div>
+            </div>`;
+            flow.appendChild(div);
+            flow.scrollTop = flow.scrollHeight;
+        }
+
+        function addAI(t) { addChat('ai', t); }
 
         // --- GAME MECHANICS ---
         function processDailyReward() {
             const now = Date.now();
             const day = 24 * 60 * 60 * 1000;
-            if(now - game.player.lastLogin > day) {
-                game.player.streak = (game.player.streak >= 7) ? 1 : game.player.streak + 1;
-                const bonus = game.player.streak * 1000;
-                game.player.wallet += bonus;
-                game.player.lastLogin = now;
-                localStorage.setItem('tr_streak', game.player.streak);
-                localStorage.setItem('tr_last_login', now);
-                addAIResponse(`🏆 **DAILY_STREAK_ACTIVE**: Day ${game.player.streak}. Bonus of **$${bonus}** added to your wallet!`);
+            if(now - state.p.lastLogin > day) {
+                state.p.streak = (state.p.streak >= 7) ? 1 : state.p.streak + 1;
+                const bonus = state.p.streak * 1000;
+                state.p.wallet += bonus;
+                state.p.lastLogin = now;
+                localStorage.setItem('ay_streak', state.p.streak);
+                localStorage.setItem('ay_last', now);
+                addAI(`🎁 **STREAK_UNLOCKED**: Day ${state.p.streak}. Bonus of **$${bonus}** added.`);
                 updateHUD();
             }
         }
 
         function startMarketFeed() {
             setInterval(() => {
-                game.market.forEach(c => {
+                state.market.forEach(c => {
                     const delta = (Math.random() * 4) - 2;
                     c.price += (c.price * (delta/100));
                     c.change = delta.toFixed(2);
                 });
-                if(document.getElementById('view-market').classList.contains('hidden') === false) renderMarket();
-            }, 4000);
+                if(!document.getElementById('view-market').classList.contains('hidden')) renderMarket();
+            }, 5000);
         }
 
         function renderMarket() {
             const grid = document.getElementById('market-list');
             grid.innerHTML = '';
-            game.market.forEach(c => {
-                grid.innerHTML += `
-                    <div class="glass p-6 rounded-[2.5rem] border border-white/5 hover:border-primary/40 transition-all">
-                        <div class="flex justify-between items-start mb-6">
-                            <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center font-black border border-white/10 text-xl">${c.id[0].toUpperCase()}</div>
-                            <div class="text-right">
-                                <p class="text-sm font-black ${c.change >= 0 ? 'text-green-400' : 'text-red-400'}">${c.change >= 0 ? '+' : ''}${c.change}%</p>
-                                <p class="text-[9px] text-gray-600 font-bold uppercase tracking-widest">Volatility</p>
-                            </div>
-                        </div>
-                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">${c.name}</h4>
-                        <p class="text-3xl font-black mb-6">$${c.price.toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
-                        <button class="w-full py-4 bg-primary text-white text-[10px] font-black rounded-2xl uppercase tracking-widest shadow-2xl">Execute Trade</button>
-                    </div>
-                `;
+            state.market.forEach(c => {
+                grid.innerHTML += `<div class="glass p-6 rounded-[2.5rem] border border-white/5 animate-up">
+                    <div class="flex justify-between items-start mb-6"><div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center font-black border border-white/10 text-xl">${c.id[0].toUpperCase()}</div>
+                    <div class="text-right"><p class="text-sm font-black ${c.change >= 0 ? 'text-green-400' : 'text-red-400'}">${c.change >= 0 ? '+' : ''}${c.change}%</p><p class="text-[9px] text-gray-600 font-bold uppercase">Volatility</p></div></div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">${c.name}</h4><p class="text-3xl font-black mb-6">$${c.price.toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
+                    <button class="w-full py-4 bg-primary text-white text-[10px] font-black rounded-2xl uppercase tracking-widest">Execute Trade</button></div>`;
             });
         }
 
         function syncLeaderboard() {
-            db.ref('rankings').orderByChild('wallet').limitToLast(10).on('value', snap => {
-                const list = document.getElementById('leaderboard-feed');
-                list.innerHTML = '';
-                let data = [];
-                snap.forEach(c => data.push(c.val()));
-                data.reverse().forEach((u, i) => {
-                    list.innerHTML += `
-                        <div class="flex justify-between items-center p-5 glass rounded-3xl border border-white/5">
-                            <div class="flex items-center gap-5">
-                                <span class="text-xl font-black ${i < 3 ? 'text-primary' : 'text-gray-700'}">#${i+1}</span>
-                                <div><p class="font-bold text-sm text-white">${u.name}</p><p class="text-[9px] text-gray-500 font-bold uppercase">Ranked Trader</p></div>
-                            </div>
-                            <p class="text-lg font-black neon-text">$${u.wallet.toLocaleString()}</p>
-                        </div>
-                    `;
+            db.ref('global_ranking').orderByChild('wallet').limitToLast(10).on('value', snap => {
+                const feed = document.getElementById('leader-feed');
+                feed.innerHTML = '';
+                let d = []; snap.forEach(c => d.push(c.val()));
+                d.reverse().forEach((u, i) => {
+                    feed.innerHTML += `<div class="flex justify-between items-center p-5 glass rounded-3xl border border-white/5 shadow-lg">
+                        <div class="flex items-center gap-5"><span class="text-xl font-black ${i < 3 ? 'text-primary' : 'text-gray-700'}">#${i+1}</span>
+                        <div><p class="font-bold text-sm text-white">${u.name}</p><p class="text-[9px] text-gray-500 font-bold uppercase">Pro Trader</p></div></div>
+                        <p class="text-lg font-black neon-glow">$${u.wallet.toLocaleString()}</p></div>`;
                 });
             });
         }
 
-        // --- SYSTEM SETTINGS ---
-        function toggleSettings() { document.getElementById('modal-config').classList.toggle('hidden'); }
-        
-        function saveConfig() {
+        // --- SETTINGS CONFIG ---
+        function openSettings() { document.getElementById('modal-settings').classList.remove('hidden'); }
+        function closeSettings() { document.getElementById('modal-settings').classList.add('hidden'); }
+        function saveSettings() {
             const k = document.getElementById('cfg-key').value;
-            const m = document.getElementById('cfg-model').value || "deepseek/deepseek-r1:free";
+            const m = document.getElementById('cfg-model').value;
             const n = document.getElementById('cfg-name').value;
-
-            if(k) { game.config.apiKey = k; localStorage.setItem('tr_key', k); }
-            game.config.model = m; localStorage.setItem('tr_model', m);
-            if(n) { game.player.name = n; updateHUD(); }
-
-            toggleSettings();
-            addAIResponse(`Settings Updated. Handshake established with **${game.config.model}**. Secure Channel Open.`);
+            if(k) { state.cfg.key = k; localStorage.setItem('ay_key', k); }
+            if(m) { state.cfg.model = m; localStorage.setItem('ay_model', m); }
+            if(n) { state.p.name = n; updateHUD(); }
+            closeSettings();
+            addAI("System Handshake Complete. AI Model updated to: **" + state.cfg.model + "**.");
         }
 
-        document.getElementById('ai-send').onclick = runAI;
-        document.getElementById('ai-input').onkeypress = (e) => { if(e.key === 'Enter') runAI(); };
+        document.getElementById('ai-send').onclick = triggerAI;
+        document.getElementById('ai-input').onkeypress = (e) => { if(e.key === 'Enter') triggerAI(); };
     </script>
 </body>
 </html>
